@@ -2,41 +2,41 @@ pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
 
--- Configuration
+-- configuration
 enclosure = {}
 enclosure.rows = 12
 enclosure.columns = 14
-enclosure.startRow = 2
-enclosure.startColumn = 0
+enclosure.startrow = 2
+enclosure.startcolumn = 0
 
 avatar = {}
 avatar.frame = 0
 
 player = {}
-player.spriteX = 0
-player.spriteY = 0
+player.spritex = 0
+player.spritey = 0
 
-function drawPlayer()
-  spr(0, (enclosure.startColumn + player.spriteX + 1) * 8, (enclosure.startRow + player.spriteY + 1) * 8)
+function drawplayer()
+  spr(0, (enclosure.startcolumn + player.spritex + 1) * 8, (enclosure.startrow + player.spritey + 1) * 8)
 end
 
-function drawEnclosure()
+function drawenclosure()
   local e = enclosure
-  for i = e.startRow, e.rows + e.startRow + 1, 1 do
-    -- Draw solid horizontal rows
-    if i == e.startRow or i == e.rows + e.startRow + 1 then
-      for j = e.startColumn, e.startColumn + e.columns + 1, 1 do
+  for i = e.startrow, e.rows + e.startrow + 1, 1 do
+    -- draw solid horizontal rows
+    if i == e.startrow or i == e.rows + e.startrow + 1 then
+      for j = e.startcolumn, e.startcolumn + e.columns + 1, 1 do
         spr(7, j * 8, i * 8)
       end
-    -- Draw beginning/end of row blocks only
-    elseif i > e.startRow and i < e.rows + e.startRow + 1 then
-      spr(7, e.startColumn * 8, i * 8)
-      spr(7, (e.columns + e.startColumn + 1) * 8, i * 8)
+    -- draw beginning/end of row blocks only
+    elseif i > e.startrow and i < e.rows + e.startrow + 1 then
+      spr(7, e.startcolumn * 8, i * 8)
+      spr(7, (e.columns + e.startcolumn + 1) * 8, i * 8)
     end
   end
 end
 
-function drawAvatar()
+function drawavatar()
   if avatar.frame <= 15 then
     spr(16, 0, 0)
     spr(17, 8, 0)
@@ -50,48 +50,48 @@ function drawAvatar()
   end
 end
 
-refreshInterval = 0
-playerLocked = false
+refreshinterval = 0
+playerlocked = false
 
 function _update()
-  refreshInterval += 1
+  refreshinterval += 1
 
-  if (refreshInterval > 1) then
-    playerLocked = false
-    refreshInterval = 0
+  if (refreshinterval > 1) then
+    playerlocked = false
+    refreshinterval = 0
   end
 
-  -- Animation control for the avatar
+  -- animation control for the avatar
   avatar.frame += 1
   if avatar.frame > 30 then
     avatar.frame = 0
   end
 
-  -- Update state for player
-  if playerLocked == false then
-    playerLocked = true
+  -- update state for player
+  if playerlocked == false then
+    playerlocked = true
     if btn(0) then
-      player.spriteX -= 1
-      if player.spriteX < 0 then
-        player.spriteX = 0
+      player.spritex -= 1
+      if player.spritex < 0 then
+        player.spritex = 0
       end
     end
     if btn(1) then
-      player.spriteX += 1
-      if player.spriteX >= enclosure.columns then
-        player.spriteX = enclosure.columns - 1
+      player.spritex += 1
+      if player.spritex >= enclosure.columns then
+        player.spritex = enclosure.columns - 1
       end
     end
     if btn(2) then
-      player.spriteY -= 1
-      if player.spriteY < 0 then
-        player.spriteY = 0
+      player.spritey -= 1
+      if player.spritey < 0 then
+        player.spritey = 0
       end
     end
     if btn(3) then
-      player.spriteY += 1
-      if player.spriteY >= enclosure.rows then
-        player.spriteY = enclosure.rows - 1
+      player.spritey += 1
+      if player.spritey >= enclosure.rows then
+        player.spritey = enclosure.rows - 1
       end
     end
   end
@@ -99,9 +99,9 @@ end
 
 function _draw()
   cls()
-  drawEnclosure()
-  drawAvatar()
-  drawPlayer()
+  drawenclosure()
+  drawavatar()
+  drawplayer()
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000488888840000000000000000000000000000000000000000000000000000000000000000
@@ -117,7 +117,7 @@ __gfx__
 00000044449900000000005545590000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00009955455990000000994444999000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00099977477990000009997747799000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00999970470999000099997047099900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00999970470999000099990740799900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00999977477999000099997747799900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00999977477999900099997747799990000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00999994444999900099999444499990000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -398,3 +398,4 @@ __music__
 00 41424344
 00 41424344
 00 41424344
+
