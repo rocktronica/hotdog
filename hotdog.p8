@@ -18,7 +18,8 @@ player.sprite_x = 0
 player.sprite_y = 0
 
 function drawplayer()
-  local pm = player.motion;
+  local pm = player.motion
+  local speech = 'awrite dog!'
 
   -- Default
   local sprite = 48
@@ -26,16 +27,22 @@ function drawplayer()
   -- Horizontal/Vertical Motion
   if pm.right or pm.left then
     sprite = 48
+    speech = 'goin\' sideways dog!'
   elseif pm.up or pm.down then
     sprite = 49
+    speech = 'slidin\' vert dog!'
   end
 
   -- Diagonal motion
   if (pm.up and pm.left) or (pm.down and pm.right) then
     sprite = 50
+    speech = 'mad diagonal dog!'
   elseif (pm.up and pm.right) or (pm.down and pm.left) then
     sprite = 51
+    speech = 'mad diagonal dog!'
   end
+
+  draw_avatar_speech(speech)
 
   spr(sprite, (enclosure.startcolumn + player.sprite_x + 1) * 8, (enclosure.startrow + player.sprite_y + 1) * 8)
 end
@@ -68,6 +75,14 @@ function drawavatar()
     spr(34, 0, 8)
     spr(35, 8, 8)
   end
+end
+
+function draw_avatar_speech(phrase)
+  rectfill(20, 2, 22 + 4 * (#phrase), 10, 7)
+  pset(19, 6, 7)
+  pset(19, 7, 7)
+  pset(18, 7, 7)
+  print(phrase, 22, 4, 2)
 end
 
 refreshinterval = 0
