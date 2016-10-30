@@ -14,6 +14,7 @@ avatar.frame = 0
 
 player = {}
 player.motion = {}
+player.motion.stuck = false
 player.sprite_x = 0
 player.sprite_y = 0
 
@@ -54,6 +55,10 @@ function draw_player()
   elseif (pm.up and pm.right) or (pm.down and pm.left) then
     sprite = 51
     speech = 'mad diagonal dog!'
+  end
+
+  if player.motion.stuck == true then
+    speech = 'mad stuck dog!'
   end
 
   draw_avatar_speech(speech)
@@ -128,27 +133,27 @@ function update_player_state()
       if block[1] == new_x and block[2] == new_y then
         return false
       end
+    end
 
-      -- Prevent diagonal movement through diagonal blocks
-      if cur_x != new_x and cur_y != new_y then
-        local possibility_1 = {cur_x, new_y}
-        local possibility_2 = {new_x, cur_y}
-        local matched_1 = false
-        local matched_2 = false
+    -- Prevent diagonal movement through diagonal blocks
+    if cur_x != new_x and cur_y != new_y then
+      local possibility_1 = {cur_x, new_y}
+      local possibility_2 = {new_x, cur_y}
+      local matched_1 = false
+      local matched_2 = false
 
-        for j = 1, #level.blocks, 1 do
-          local block = level.blocks[j]
-          if block[1] == possibility_1[1] and block[2] == possibility_1[2] then
-            matched_1 = true
-          end
-          if block[1] == possibility_2[1] and block[2] == possibility_2[2] then
-            matched_2 = true
-          end
+      for i = 1, #level.blocks, 1 do
+        local block = level.blocks[i]
+        if block[1] == possibility_1[1] and block[2] == possibility_1[2] then
+          matched_1 = true
         end
-
-        if matched_1 and matched_2 then
-          return false
+        if block[1] == possibility_2[1] and block[2] == possibility_2[2] then
+          matched_2 = true
         end
+      end
+
+      if matched_1 and matched_2 then
+        return false
       end
     end
 
@@ -180,10 +185,17 @@ function update_player_state()
     end
   end
 
+  -- Update position
   if can_move_to(player.sprite_x, player.sprite_y, new_x, new_y) then
-    player.sprite_x = new_x
-    player.sprite_y = new_y
+    if player.sprite_x != new_x or player.sprite_y != new_y then
+      player.sprite_x = new_x
+      player.sprite_y = new_y
+      player.motion.stuck = false
+    end
+  else
+    player.motion.stuck = true
   end
+
 end
 
 function _update()
@@ -206,11 +218,12 @@ end
 
 function _draw()
   cls()
-  draw_enclosure()
 
+  -- Draw the level
   levels.active = 1
-  draw_level()
 
+  draw_enclosure()
+  draw_level()
   draw_avatar()
   draw_player()
 end
