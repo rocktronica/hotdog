@@ -17,6 +17,20 @@ player.motion = {}
 player.sprite_x = 0
 player.sprite_y = 0
 
+-- Level Definitions
+levels = {}
+levels[1] = {}
+levels[1].blocks = {{1, 1},{2, 2},{3, 3}}
+levels.active = 1
+
+function draw_level()
+  local level = levels[levels.active]
+
+  for i = 1, #level.blocks, 1 do
+    spr(7, (enclosure.startcolumn + 1 + level.blocks[i][1]) * 8,  (enclosure.startrow + 1 + level.blocks[i][2]) * 8)
+  end
+end
+
 function draw_player()
   local pm = player.motion
   local speech = 'awrite dog!'
@@ -86,13 +100,97 @@ function draw_avatar_speech(phrase)
 end
 
 refreshinterval = 0
-playerlocked = false
+player_locked = false
+
+function update_player_state()
+
+  local function can_move_to(cur_x, cur_y, new_x, new_y)
+
+    -- Don't escape the enclosure
+    if new_x < 0 then
+      return false
+    end
+    if new_x >= enclosure.columns then
+      return false
+    end
+    if new_y < 0 then
+      return false
+    end
+    if new_y >= enclosure.rows then
+      return false
+    end
+
+    local level = levels[levels.active]
+
+    -- Don't move to block tiles
+    for i = 1, #level.blocks, 1 do
+      local block = level.blocks[i];
+      if block[1] == new_x and block[2] == new_y then
+        return false
+      end
+
+      -- Prevent diagonal movement through diagonal blocks
+      if cur_x != new_x and cur_y != new_y then
+        local possibility_1 = {cur_x, new_y}
+        local possibility_2 = {new_x, cur_y}
+        local matched_1 = false
+        local matched_2 = false
+
+        for j = 1, #level.blocks, 1 do
+          local block = level.blocks[j]
+          if block[1] == possibility_1[1] and block[2] == possibility_1[2] then
+            matched_1 = true
+          end
+          if block[1] == possibility_2[1] and block[2] == possibility_2[2] then
+            matched_2 = true
+          end
+        end
+
+        if matched_1 and matched_2 then
+          return false
+        end
+      end
+    end
+
+    return true
+  end
+
+  local new_x = player.sprite_x
+  local new_y = player.sprite_y
+
+  -- Handle button input
+  if player_locked == false then
+    player_locked = true
+    player.motion = {}
+    if btn(0) then
+      player.motion.left = true
+      new_x -= 1
+    end
+    if btn(1) then
+      player.motion.right = true
+      new_x += 1
+    end
+    if btn(2) then
+      player.motion.up = true
+      new_y -= 1
+    end
+    if btn(3) then
+      player.motion.down = true
+      new_y += 1
+    end
+  end
+
+  if can_move_to(player.sprite_x, player.sprite_y, new_x, new_y) then
+    player.sprite_x = new_x
+    player.sprite_y = new_y
+  end
+end
 
 function _update()
   refreshinterval += 1
 
   if (refreshinterval > 1) then
-    playerlocked = false
+    player_locked = false
     refreshinterval = 0
   end
 
@@ -102,44 +200,17 @@ function _update()
     avatar.frame = 0
   end
 
-  -- update state for player
-  if playerlocked == false then
-    playerlocked = true
-    player.motion = {}
-    if btn(0) then
-      player.motion.left = true
-      player.sprite_x -= 1
-      if player.sprite_x < 0 then
-        player.sprite_x = 0
-      end
-    end
-    if btn(1) then
-      player.motion.right = true
-      player.sprite_x += 1
-      if player.sprite_x >= enclosure.columns then
-        player.sprite_x = enclosure.columns - 1
-      end
-    end
-    if btn(2) then
-      player.motion.up = true
-      player.sprite_y -= 1
-      if player.sprite_y < 0 then
-        player.sprite_y = 0
-      end
-    end
-    if btn(3) then
-      player.motion.down = true
-      player.sprite_y += 1
-      if player.sprite_y >= enclosure.rows then
-        player.sprite_y = enclosure.rows - 1
-      end
-    end
-  end
+  update_player_state()
+
 end
 
 function _draw()
   cls()
   draw_enclosure()
+
+  levels.active = 1
+  draw_level()
+
   draw_avatar()
   draw_player()
 end
@@ -442,4 +513,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-
